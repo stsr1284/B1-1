@@ -108,32 +108,94 @@ def create_initial_prompts() -> list[dict]:
     ]
 
 
-def read_required_text(label: str) -> str:
+def read_required_text(label: str, allow_cancel: bool = False) -> str | None:
     while True:
         value = input(label).strip()
+        if allow_cancel and value == '/cancel':
+            return None
         if value:
             return value
         print('빈 값은 입력할 수 없습니다. 다시 입력해주세요.')
 
 
-def select_category() -> str:
+def read_prompt_content() -> str | None:
+    """한 줄 입력 또는 /multi로 시작하는 여러 줄 내용을 받는다."""
+    first_line = read_required_text('내용 (여러 줄 /multi, 취소 /cancel): ', allow_cancel=True)
+    if first_line is None:
+        return None
+    if first_line != '/multi':
+        return first_line
+    print('내용을 여러 줄로 입력하세요. /end로 완료, /cancel로 추가를 취소합니다.')
+    lines = []
+    while True:
+        line = input()
+        if line.strip() == '/cancel':
+            return None
+        if line.strip() == '/end':
+            content = '\n'.join(lines)
+            if content.strip():
+                return content
+            print('내용이 비어 있습니다. 내용을 다시 입력하고 /end로 완료해주세요.')
+            lines = []
+        else:
+            lines.append(line)
+
+
+def parse_number(value: str, minimum: int, maximum: int) -> int | None:
+    """공백과 앞자리 0을 허용하되 범위 밖·비숫자 입력은 거절한다."""
+    value = value.strip()
+    if not value.isascii() or not value.isdecimal():
+        return None
+    # 매우 긴 숫자도 int()로 변환하지 않아 변환 제한 오류를 피한다.
+    value = value.lstrip('0') or '0'
+    for number in range(minimum, maximum + 1):
+        if value == str(number):
+            return number
+    return None
+
+
+def count_category_prompts(prompts: list[dict], category: str) -> int:
+    count = 0
+    for prompt in prompts:
+        if prompt['category'] == category:
+            count += 1
+    return count
+
+
+def select_category(prompts: list[dict] | None = None, allow_cancel: bool = False) -> str | None:
     print('카테고리 선택:')
     for number, category in enumerate(CATEGORIES, start=1):
-        print(f'{number}) {category}')
+        if prompts is None:
+            print(f'{number}) {category}')
+        else:
+            count = count_category_prompts(prompts, category)
+            print(f'{number}) {category} ({count}개)')
+    if allow_cancel:
+        print('/cancel: 프롬프트 추가 취소')
     while True:
-        choice = input('선택: ').strip()
-        # 문자열로 비교해 숫자가 아닌 입력도 예외 없이 처리한다.
-        for number, category in enumerate(CATEGORIES, start=1):
-            if choice == str(number):
-                return category
+        value = input('선택: ').strip()
+        if allow_cancel and value == '/cancel':
+            return None
+        choice = parse_number(value, 1, len(CATEGORIES))
+        if choice is not None:
+            return CATEGORIES[choice - 1]
         print('잘못된 카테고리 번호입니다. 다시 선택해주세요.')
 
 
 def add_prompt(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 추가 ===')
-    title = read_required_text('제목: ')
-    content = read_required_text('내용: ')
-    category = select_category()
+    title = read_required_text('제목 (/cancel로 취소): ', allow_cancel=True)
+    if title is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
+    content = read_prompt_content()
+    if content is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
+    category = select_category(prompts, allow_cancel=True)
+    if category is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
     prompts.append({
         'title': title,
         'content': content,
@@ -141,55 +203,78 @@ def add_prompt(prompts: list[dict]) -> None:
         'favorite': False,
     })
     print('프롬프트가 추가되었습니다!')
+    print(f'등록 번호: {len(prompts)} | 제목: {title}')
 
 
-def print_prompt_list(items: list[tuple[int, dict]]) -> None:
+def numbered_prompts(prompts: list[dict]) -> list[tuple[int, dict]]:
+    """필터를 적용하기 전에 전체 목록의 원래 번호를 부여한다."""
+    return list(enumerate(prompts, start=1))
+
+
+def print_prompt_list(
+    items: list[tuple[int, dict]],
+    empty_message: str = '프롬프트가 없습니다.',
+    count_label: str = '프롬프트',
+) -> None:
     if not items:
-        print('프롬프트가 없습니다.')
+        print(empty_message)
+        print(f'총 0개의 {count_label}')
         return
     for number, prompt in items:
         star = ' ⭐' if prompt['favorite'] else ''
         print(f"{number}. [{prompt['category']}] {prompt['title']}{star}")
-    print(f'총 {len(items)}개의 프롬프트')
+    print(f'총 {len(items)}개의 {count_label}')
 
 
 def show_list(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 목록 ===')
-    print_prompt_list(list(enumerate(prompts, start=1)))
+    print_prompt_list(numbered_prompts(prompts))
 
 
 def show_by_category(prompts: list[dict]) -> None:
     print('\n=== 카테고리별 조회 ===')
-    category = select_category()
+    category = select_category(prompts)
     items = []
-    for number, prompt in enumerate(prompts, start=1):
+    for number, prompt in numbered_prompts(prompts):
         if prompt['category'] == category:
             items.append((number, prompt))
     print(f'[{category}] 카테고리 프롬프트:')
-    print_prompt_list(items)
+    print_prompt_list(items, f'[{category}] 카테고리에 프롬프트가 없습니다.')
+
+
+def find_prompts(prompts: list[dict], keyword: str) -> list[tuple[int, dict]]:
+    """제목·본문을 검색하고 화면 출력 없이 원래 번호와 결과를 반환한다."""
+    keyword = keyword.strip().casefold()
+    if not keyword:
+        return []
+    items = []
+    for number, prompt in numbered_prompts(prompts):
+        if keyword in prompt['title'].casefold() or keyword in prompt['content'].casefold():
+            items.append((number, prompt))
+    return items
 
 
 def search_prompts(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 검색 ===')
-    keyword = read_required_text('검색어: ').casefold()
-    items = []
-    for number, prompt in enumerate(prompts, start=1):
-        if keyword in prompt['title'].casefold() or keyword in prompt['content'].casefold():
-            items.append((number, prompt))
+    keyword = read_required_text('검색어: ')
+    items = find_prompts(prompts, keyword)
     print('검색 결과:')
-    print_prompt_list(items)
+    print_prompt_list(items, f'"{keyword}"에 대한 검색 결과가 없습니다.')
 
 
 def select_prompt(prompts: list[dict]) -> dict | None:
     if not prompts:
         print('프롬프트가 없습니다.')
         return None
-    choice = input('프롬프트 번호 입력: ').strip()
-    for number, prompt in enumerate(prompts, start=1):
-        if choice == str(number):
-            return prompt
-    print('잘못된 프롬프트 번호입니다.')
-    return None
+    print(f'1~{len(prompts)}번을 선택하세요. 0번은 선택 취소입니다.')
+    while True:
+        choice = parse_number(input('프롬프트 번호 입력: '), 0, len(prompts))
+        if choice == 0:
+            print('선택을 취소했습니다.')
+            return None
+        if choice is not None:
+            return prompts[choice - 1]
+        print('잘못된 프롬프트 번호입니다. 다시 입력해주세요.')
 
 
 def show_detail(prompts: list[dict]) -> None:
@@ -220,10 +305,10 @@ def toggle_favorite(prompts: list[dict]) -> None:
 def show_favorites(prompts: list[dict]) -> None:
     print('\n=== 즐겨찾기 목록 ===')
     items = []
-    for number, prompt in enumerate(prompts, start=1):
+    for number, prompt in numbered_prompts(prompts):
         if prompt['favorite']:
             items.append((number, prompt))
-    print_prompt_list(items)
+    print_prompt_list(items, '즐겨찾기한 프롬프트가 없습니다.', '즐겨찾기')
 
 
 def show_menu() -> None:
@@ -242,23 +327,23 @@ def main() -> None:
     prompts = create_initial_prompts()
     while True:
         show_menu()
-        choice = input('선택: ').strip()
-        if choice == '0':
+        choice = parse_number(input('선택: '), 0, 7)
+        if choice == 0:
             print('프로그램을 종료합니다.')
             break
-        elif choice == '1':
+        elif choice == 1:
             add_prompt(prompts)
-        elif choice == '2':
+        elif choice == 2:
             show_list(prompts)
-        elif choice == '3':
+        elif choice == 3:
             show_by_category(prompts)
-        elif choice == '4':
+        elif choice == 4:
             search_prompts(prompts)
-        elif choice == '5':
+        elif choice == 5:
             show_detail(prompts)
-        elif choice == '6':
+        elif choice == 6:
             toggle_favorite(prompts)
-        elif choice == '7':
+        elif choice == 7:
             show_favorites(prompts)
         else:
             print('잘못된 메뉴 번호입니다. 다시 선택해주세요.')
