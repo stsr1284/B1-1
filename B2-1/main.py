@@ -217,13 +217,22 @@ def show_by_category(prompts: list[dict]) -> None:
     print_prompt_list(items)
 
 
-def search_prompts(prompts: list[dict]) -> None:
-    print('\n=== 프롬프트 검색 ===')
-    keyword = read_required_text('검색어: ').casefold()
+def find_prompts(prompts: list[dict], keyword: str) -> list[tuple[int, dict]]:
+    """제목·본문을 검색하고 화면 출력 없이 원래 번호와 결과를 반환한다."""
+    keyword = keyword.strip().casefold()
+    if not keyword:
+        return []
     items = []
     for number, prompt in numbered_prompts(prompts):
         if keyword in prompt['title'].casefold() or keyword in prompt['content'].casefold():
             items.append((number, prompt))
+    return items
+
+
+def search_prompts(prompts: list[dict]) -> None:
+    print('\n=== 프롬프트 검색 ===')
+    keyword = read_required_text('검색어: ')
+    items = find_prompts(prompts, keyword)
     print('검색 결과:')
     print_prompt_list(items)
 
