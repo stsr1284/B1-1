@@ -5,102 +5,35 @@ CATEGORIES = ['텍스트 생성', '이미지 생성', '영상 생성', '페르�
 
 
 def create_initial_prompts() -> list[dict]:
-    """이전 미션의 시스템 설계 문서에 작성한 프롬프트 3개를 반환한다."""
-    # 출처: ../B1-1/내_보고서/시스템 설계 문서.md (9-1, 9-2, 11절)
+    """기존 제출 스크린샷과 같은 기본 데이터. 실행할 때마다 새로 만든다."""
     return [
         {
-            'title': '공고도우미 v1 일반 요약',
+            'title': '파이썬 학습 내용 요약',
             'content': (
-                '아래 창업지원사업 공고 URL을 보고 핵심 내용을 요약해줘.\n'
-                '\n'
-                'https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?pbancClssCd=PBC010&schM=view&pbancSn=177723'
+                '당신은 파이썬 입문자를 가르치는 튜터입니다. 내가 제공하는 학습 내용을 '
+                '핵심 개념 3개, 쉬운 코드 예제, 확인 문제 2개로 정리해주세요. '
+                '어려운 용어는 풀어서 설명하고 제공되지 않은 사실은 추측하지 마세요.'
             ),
             'category': '텍스트 생성',
             'favorite': False,
         },
         {
-            'title': '공고도우미 v2 단계적 요약',
+            'title': '독서 앱 홍보 이미지',
             'content': (
-                '당신은 `공고도우미`이다. 창업지원사업 공고문을 분석해 창업에 관심 있는 사용자가 신청 여부와 준비사항을 빠르게 판단할 수 있도록 돕는다.\n'
-                '\n'
-                '[공고 URL]\n'
-                'https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?pbancClssCd=PBC010&schM=view&pbancSn=177723\n'
-                '\n'
-                '[사용자 상황]\n'
-                '창업지원사업을 처음 찾아보는 예비창업자입니다.\n'
-                '\n'
-                '[질문 의도]\n'
-                '공고의 핵심 내용을 빠르게 파악하고 싶습니다.\n'
-                '\n'
-                '[핵심 포인트]\n'
-                '접수기간, 신청대상, 제외대상, 신청방법, 제출서류, 선정절차, 교육/지원 일정, 문의처\n'
-                '\n'
-                '[출력 형식]\n'
-                '1. 한 줄 요약\n'
-                '2. 공고 핵심 정보 표\n'
-                '3. 신청 대상/제외 대상\n'
-                '4. 신청 방법 및 제출서류\n'
-                '5. 일정/교육/지원 안내\n'
-                '6. 주의사항\n'
-                '7. 추가 확인된 특이사항\n'
-                '8. 추가 확인 질문\n'
-                '\n'
-                '[처리 순서]\n'
-                '1. 먼저 공고명, 접수기간, 주관기관, 담당부서, 연락처 등 기본정보를 확인한다.\n'
-                '2. 신청대상, 제외대상, 창업업력, 제출서류처럼 신청 판단에 필요한 조건을 분리한다.\n'
-                '3. 일정, 교육 장소, 지원 내용, 문의처를 별도 항목으로 정리한다.\n'
-                '4. 원문에 없는 정보는 만들지 않고 `확인 필요`라고 표시한다.\n'
-                '5. 사용자의 신청 가능성을 판단하기에 정보가 부족하면 마지막에 추가 확인 질문을 제시한다.\n'
-                '\n'
-                '[금지]\n'
-                '- 원문에 없는 정보 추측 금지\n'
-                '- 날짜, 금액, 모집규모, 제출서류 임의 생성 금지\n'
-                '- 신청 가능 여부 단정 금지\n'
-                '- 내부 검토 과정을 장문으로 노출 금지'
+                '독서 기록 앱의 홍보용 정사각형 이미지를 만들어주세요. 따뜻한 크림색 배경에 '
+                '펼친 책과 작은 화분을 배치하고 부드러운 자연광을 표현해주세요. '
+                '위쪽에는 제목을 넣을 여백을 남기고 이미지 안에는 글자를 넣지 마세요.'
             ),
-            'category': '텍스트 생성',
+            'category': '이미지 생성',
             'favorite': False,
         },
         {
-            'title': '공고도우미 최종 시스템 프롬프트',
+            'title': '친절한 모의 면접관',
             'content': (
-                '당신은 `공고도우미`이다. 창업지원사업 공고문을 분석해 창업에 관심 있는 사용자가 신청 여부와 준비사항을 빠르게 판단할 수 있도록 돕는다.\n'
-                '\n'
-                '[공고 URL]\n'
-                'https://www.k-startup.go.kr/web/contents/bizpbanc-ongoing.do?pbancClssCd=PBC010&schM=view&pbancSn=177723\n'
-                '\n'
-                '[사용자 상황]\n'
-                '창업지원사업을 처음 찾아보는 예비창업자입니다.\n'
-                '\n'
-                '[질문 의도]\n'
-                '공고의 핵심 내용을 빠르게 파악하고, 내가 신청 가능한지 판단하기 위해 추가로 확인해야 할 사항을 알고 싶습니다.\n'
-                '\n'
-                '[핵심 포인트]\n'
-                '접수기간, 신청대상, 제외대상, 신청방법, 제출서류, 선정절차, 교육/지원 일정, 문의처를 중심으로 정리해주세요.\n'
-                '\n'
-                '[작업 방식]\n'
-                '1. 먼저 공고 URL에 접속해 공고 본문과 첨부파일에서 확인 가능한 정보를 기준으로 정리하세요.\n'
-                '2. 내부적으로는 `공고 기본정보 확인 → 신청대상/제외대상 분리 → 제출서류와 일정 확인 → 예비창업자 관점의 주의사항 도출 → 불확실한 항목 표시` 순서로 검토하세요.\n'
-                '3. 최종 답변에는 장문의 추론 과정을 노출하지 말고, 핵심 근거와 판단 결과만 간결하게 제시하세요.\n'
-                '4. 사용자 상황만으로 신청 가능 여부를 확정하기 어렵다면, 단정하지 말고 추가 확인 질문을 제시하세요.\n'
-                '\n'
-                '[출력 형식]\n'
-                '1. 한 줄 요약\n'
-                '2. 공고 핵심 정보 표\n'
-                '3. 신청 대상/제외 대상\n'
-                '4. 신청 방법 및 제출서류\n'
-                '5. 일정/교육/지원 안내\n'
-                '6. 주의사항\n'
-                '7. 추가 확인된 특이사항\n'
-                '8. 추가 확인 질문\n'
-                '\n'
-                '[규칙]\n'
-                '- 원문에 없는 정보는 추측하지 마세요.\n'
-                '- 불확실한 내용은 `확인 필요`라고 표시하세요.\n'
-                '- 날짜, 금액, 모집규모, 제출서류, 문의처는 원문 기준으로만 답하세요.\n'
-                '- 신청 가능 여부가 애매하면 단정하지 말고 필요한 정보를 질문하세요.\n'
-                '- 지원금, 모집규모, 주차 지원, 교육비처럼 원문에서 확인되지 않는 내용은 임의로 만들지 마세요.\n'
-                '- URL 접근이 어렵거나 첨부파일 내용을 확인할 수 없으면, 확인 가능한 범위와 확인이 필요한 범위를 구분해서 답하세요.'
+                '당신은 주니어 개발자 면접관입니다. 먼저 지원 직무를 물어보고, '
+                '답변을 받은 뒤 관련 질문을 한 번에 하나씩 해주세요. 각 답변마다 '
+                '잘한 점 한 가지와 개선할 점 한 가지를 구체적으로 알려주세요. '
+                '모르는 내용은 함께 확인할 수 있도록 안내해주세요.'
             ),
             'category': '페르소나',
             'favorite': False,
@@ -120,7 +53,7 @@ def read_required_text(label: str, allow_cancel: bool = False) -> str | None:
 
 def read_prompt_content() -> str | None:
     """한 줄 입력 또는 /multi로 시작하는 여러 줄 내용을 받는다."""
-    first_line = read_required_text('내용 (여러 줄 /multi, 취소 /cancel): ', allow_cancel=True)
+    first_line = read_required_text('내용: ', allow_cancel=True)
     if first_line is None:
         return None
     if first_line != '/multi':
@@ -154,24 +87,10 @@ def parse_number(value: str, minimum: int, maximum: int) -> int | None:
     return None
 
 
-def count_category_prompts(prompts: list[dict], category: str) -> int:
-    count = 0
-    for prompt in prompts:
-        if prompt['category'] == category:
-            count += 1
-    return count
-
-
-def select_category(prompts: list[dict] | None = None, allow_cancel: bool = False) -> str | None:
+def select_category(allow_cancel: bool = False) -> str | None:
     print('카테고리 선택:')
     for number, category in enumerate(CATEGORIES, start=1):
-        if prompts is None:
-            print(f'{number}) {category}')
-        else:
-            count = count_category_prompts(prompts, category)
-            print(f'{number}) {category} ({count}개)')
-    if allow_cancel:
-        print('/cancel: 프롬프트 추가 취소')
+        print(f'{number}) {category}')
     while True:
         value = input('선택: ').strip()
         if allow_cancel and value == '/cancel':
@@ -184,7 +103,7 @@ def select_category(prompts: list[dict] | None = None, allow_cancel: bool = Fals
 
 def add_prompt(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 추가 ===')
-    title = read_required_text('제목 (/cancel로 취소): ', allow_cancel=True)
+    title = read_required_text('제목: ', allow_cancel=True)
     if title is None:
         print('프롬프트 추가를 취소했습니다.')
         return
@@ -192,7 +111,7 @@ def add_prompt(prompts: list[dict]) -> None:
     if content is None:
         print('프롬프트 추가를 취소했습니다.')
         return
-    category = select_category(prompts, allow_cancel=True)
+    category = select_category(allow_cancel=True)
     if category is None:
         print('프롬프트 추가를 취소했습니다.')
         return
@@ -203,7 +122,6 @@ def add_prompt(prompts: list[dict]) -> None:
         'favorite': False,
     })
     print('프롬프트가 추가되었습니다!')
-    print(f'등록 번호: {len(prompts)} | 제목: {title}')
 
 
 def numbered_prompts(prompts: list[dict]) -> list[tuple[int, dict]]:
@@ -211,19 +129,14 @@ def numbered_prompts(prompts: list[dict]) -> list[tuple[int, dict]]:
     return list(enumerate(prompts, start=1))
 
 
-def print_prompt_list(
-    items: list[tuple[int, dict]],
-    empty_message: str = '프롬프트가 없습니다.',
-    count_label: str = '프롬프트',
-) -> None:
+def print_prompt_list(items: list[tuple[int, dict]]) -> None:
     if not items:
-        print(empty_message)
-        print(f'총 0개의 {count_label}')
+        print('프롬프트가 없습니다.')
         return
     for number, prompt in items:
         star = ' ⭐' if prompt['favorite'] else ''
         print(f"{number}. [{prompt['category']}] {prompt['title']}{star}")
-    print(f'총 {len(items)}개의 {count_label}')
+    print(f'총 {len(items)}개의 프롬프트')
 
 
 def show_list(prompts: list[dict]) -> None:
@@ -233,13 +146,13 @@ def show_list(prompts: list[dict]) -> None:
 
 def show_by_category(prompts: list[dict]) -> None:
     print('\n=== 카테고리별 조회 ===')
-    category = select_category(prompts)
+    category = select_category()
     items = []
     for number, prompt in numbered_prompts(prompts):
         if prompt['category'] == category:
             items.append((number, prompt))
     print(f'[{category}] 카테고리 프롬프트:')
-    print_prompt_list(items, f'[{category}] 카테고리에 프롬프트가 없습니다.')
+    print_prompt_list(items)
 
 
 def find_prompts(prompts: list[dict], keyword: str) -> list[tuple[int, dict]]:
@@ -259,14 +172,13 @@ def search_prompts(prompts: list[dict]) -> None:
     keyword = read_required_text('검색어: ')
     items = find_prompts(prompts, keyword)
     print('검색 결과:')
-    print_prompt_list(items, f'"{keyword}"에 대한 검색 결과가 없습니다.')
+    print_prompt_list(items)
 
 
 def select_prompt(prompts: list[dict]) -> dict | None:
     if not prompts:
         print('프롬프트가 없습니다.')
         return None
-    print(f'1~{len(prompts)}번을 선택하세요. 0번은 선택 취소입니다.')
     while True:
         choice = parse_number(input('프롬프트 번호 입력: '), 0, len(prompts))
         if choice == 0:
@@ -274,7 +186,7 @@ def select_prompt(prompts: list[dict]) -> dict | None:
             return None
         if choice is not None:
             return prompts[choice - 1]
-        print('잘못된 프롬프트 번호입니다. 다시 입력해주세요.')
+        print('잘못된 프롬프트 번호입니다.')
 
 
 def show_detail(prompts: list[dict]) -> None:
@@ -308,7 +220,7 @@ def show_favorites(prompts: list[dict]) -> None:
     for number, prompt in numbered_prompts(prompts):
         if prompt['favorite']:
             items.append((number, prompt))
-    print_prompt_list(items, '즐겨찾기한 프롬프트가 없습니다.', '즐겨찾기')
+    print_prompt_list(items)
 
 
 def show_menu() -> None:
