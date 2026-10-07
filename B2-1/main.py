@@ -152,6 +152,7 @@ def add_prompt(prompts: list[dict]) -> None:
         'favorite': False,
     })
     print('프롬프트가 추가되었습니다!')
+    print(f'등록 번호: {len(prompts)} | 제목: {title}')
 
 
 def print_prompt_list(items: list[tuple[int, dict]]) -> None:
