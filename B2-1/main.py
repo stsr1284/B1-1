@@ -116,16 +116,27 @@ def read_required_text(label: str) -> str:
         print('빈 값은 입력할 수 없습니다. 다시 입력해주세요.')
 
 
+def parse_number(value: str, minimum: int, maximum: int) -> int | None:
+    """공백과 앞자리 0을 허용하되 범위 밖·비숫자 입력은 거절한다."""
+    value = value.strip()
+    if not value.isascii() or not value.isdecimal():
+        return None
+    # 매우 긴 숫자도 int()로 변환하지 않아 변환 제한 오류를 피한다.
+    value = value.lstrip('0') or '0'
+    for number in range(minimum, maximum + 1):
+        if value == str(number):
+            return number
+    return None
+
+
 def select_category() -> str:
     print('카테고리 선택:')
     for number, category in enumerate(CATEGORIES, start=1):
         print(f'{number}) {category}')
     while True:
-        choice = input('선택: ').strip()
-        # 문자열로 비교해 숫자가 아닌 입력도 예외 없이 처리한다.
-        for number, category in enumerate(CATEGORIES, start=1):
-            if choice == str(number):
-                return category
+        choice = parse_number(input('선택: '), 1, len(CATEGORIES))
+        if choice is not None:
+            return CATEGORIES[choice - 1]
         print('잘못된 카테고리 번호입니다. 다시 선택해주세요.')
 
 
@@ -184,10 +195,9 @@ def select_prompt(prompts: list[dict]) -> dict | None:
     if not prompts:
         print('프롬프트가 없습니다.')
         return None
-    choice = input('프롬프트 번호 입력: ').strip()
-    for number, prompt in enumerate(prompts, start=1):
-        if choice == str(number):
-            return prompt
+    choice = parse_number(input('프롬프트 번호 입력: '), 1, len(prompts))
+    if choice is not None:
+        return prompts[choice - 1]
     print('잘못된 프롬프트 번호입니다.')
     return None
 
@@ -242,23 +252,23 @@ def main() -> None:
     prompts = create_initial_prompts()
     while True:
         show_menu()
-        choice = input('선택: ').strip()
-        if choice == '0':
+        choice = parse_number(input('선택: '), 0, 7)
+        if choice == 0:
             print('프로그램을 종료합니다.')
             break
-        elif choice == '1':
+        elif choice == 1:
             add_prompt(prompts)
-        elif choice == '2':
+        elif choice == 2:
             show_list(prompts)
-        elif choice == '3':
+        elif choice == 3:
             show_by_category(prompts)
-        elif choice == '4':
+        elif choice == 4:
             search_prompts(prompts)
-        elif choice == '5':
+        elif choice == 5:
             show_detail(prompts)
-        elif choice == '6':
+        elif choice == 6:
             toggle_favorite(prompts)
-        elif choice == '7':
+        elif choice == 7:
             show_favorites(prompts)
         else:
             print('잘못된 메뉴 번호입니다. 다시 선택해주세요.')
