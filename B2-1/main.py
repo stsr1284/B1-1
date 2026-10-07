@@ -191,14 +191,19 @@ def numbered_prompts(prompts: list[dict]) -> list[tuple[int, dict]]:
     return list(enumerate(prompts, start=1))
 
 
-def print_prompt_list(items: list[tuple[int, dict]]) -> None:
+def print_prompt_list(
+    items: list[tuple[int, dict]],
+    empty_message: str = '프롬프트가 없습니다.',
+    count_label: str = '프롬프트',
+) -> None:
     if not items:
-        print('프롬프트가 없습니다.')
+        print(empty_message)
+        print(f'총 0개의 {count_label}')
         return
     for number, prompt in items:
         star = ' ⭐' if prompt['favorite'] else ''
         print(f"{number}. [{prompt['category']}] {prompt['title']}{star}")
-    print(f'총 {len(items)}개의 프롬프트')
+    print(f'총 {len(items)}개의 {count_label}')
 
 
 def show_list(prompts: list[dict]) -> None:
@@ -214,7 +219,7 @@ def show_by_category(prompts: list[dict]) -> None:
         if prompt['category'] == category:
             items.append((number, prompt))
     print(f'[{category}] 카테고리 프롬프트:')
-    print_prompt_list(items)
+    print_prompt_list(items, f'[{category}] 카테고리에 프롬프트가 없습니다.')
 
 
 def find_prompts(prompts: list[dict], keyword: str) -> list[tuple[int, dict]]:
@@ -234,7 +239,7 @@ def search_prompts(prompts: list[dict]) -> None:
     keyword = read_required_text('검색어: ')
     items = find_prompts(prompts, keyword)
     print('검색 결과:')
-    print_prompt_list(items)
+    print_prompt_list(items, f'"{keyword}"에 대한 검색 결과가 없습니다.')
 
 
 def select_prompt(prompts: list[dict]) -> dict | None:
@@ -283,7 +288,7 @@ def show_favorites(prompts: list[dict]) -> None:
     for number, prompt in numbered_prompts(prompts):
         if prompt['favorite']:
             items.append((number, prompt))
-    print_prompt_list(items)
+    print_prompt_list(items, '즐겨찾기한 프롬프트가 없습니다.', '즐겨찾기')
 
 
 def show_menu() -> None:
