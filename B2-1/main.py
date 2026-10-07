@@ -108,23 +108,29 @@ def create_initial_prompts() -> list[dict]:
     ]
 
 
-def read_required_text(label: str) -> str:
+def read_required_text(label: str, allow_cancel: bool = False) -> str | None:
     while True:
         value = input(label).strip()
+        if allow_cancel and value == '/cancel':
+            return None
         if value:
             return value
         print('빈 값은 입력할 수 없습니다. 다시 입력해주세요.')
 
 
-def read_prompt_content() -> str:
+def read_prompt_content() -> str | None:
     """한 줄 입력 또는 /multi로 시작하는 여러 줄 내용을 받는다."""
-    first_line = read_required_text('내용 (여러 줄 입력은 /multi): ')
+    first_line = read_required_text('내용 (여러 줄 /multi, 취소 /cancel): ', allow_cancel=True)
+    if first_line is None:
+        return None
     if first_line != '/multi':
         return first_line
-    print('내용을 여러 줄로 입력하세요. 한 줄에 /end를 입력하면 완료됩니다.')
+    print('내용을 여러 줄로 입력하세요. /end로 완료, /cancel로 추가를 취소합니다.')
     lines = []
     while True:
         line = input()
+        if line.strip() == '/cancel':
+            return None
         if line.strip() == '/end':
             content = '\n'.join(lines)
             if content.strip():
@@ -156,7 +162,7 @@ def count_category_prompts(prompts: list[dict], category: str) -> int:
     return count
 
 
-def select_category(prompts: list[dict] | None = None) -> str:
+def select_category(prompts: list[dict] | None = None, allow_cancel: bool = False) -> str | None:
     print('카테고리 선택:')
     for number, category in enumerate(CATEGORIES, start=1):
         if prompts is None:
@@ -164,8 +170,13 @@ def select_category(prompts: list[dict] | None = None) -> str:
         else:
             count = count_category_prompts(prompts, category)
             print(f'{number}) {category} ({count}개)')
+    if allow_cancel:
+        print('/cancel: 프롬프트 추가 취소')
     while True:
-        choice = parse_number(input('선택: '), 1, len(CATEGORIES))
+        value = input('선택: ').strip()
+        if allow_cancel and value == '/cancel':
+            return None
+        choice = parse_number(value, 1, len(CATEGORIES))
         if choice is not None:
             return CATEGORIES[choice - 1]
         print('잘못된 카테고리 번호입니다. 다시 선택해주세요.')
@@ -173,9 +184,18 @@ def select_category(prompts: list[dict] | None = None) -> str:
 
 def add_prompt(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 추가 ===')
-    title = read_required_text('제목: ')
+    title = read_required_text('제목 (/cancel로 취소): ', allow_cancel=True)
+    if title is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
     content = read_prompt_content()
-    category = select_category(prompts)
+    if content is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
+    category = select_category(prompts, allow_cancel=True)
+    if category is None:
+        print('프롬프트 추가를 취소했습니다.')
+        return
     prompts.append({
         'title': title,
         'content': content,
