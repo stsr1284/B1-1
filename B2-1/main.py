@@ -148,10 +148,22 @@ def parse_number(value: str, minimum: int, maximum: int) -> int | None:
     return None
 
 
-def select_category() -> str:
+def count_category_prompts(prompts: list[dict], category: str) -> int:
+    count = 0
+    for prompt in prompts:
+        if prompt['category'] == category:
+            count += 1
+    return count
+
+
+def select_category(prompts: list[dict] | None = None) -> str:
     print('카테고리 선택:')
     for number, category in enumerate(CATEGORIES, start=1):
-        print(f'{number}) {category}')
+        if prompts is None:
+            print(f'{number}) {category}')
+        else:
+            count = count_category_prompts(prompts, category)
+            print(f'{number}) {category} ({count}개)')
     while True:
         choice = parse_number(input('선택: '), 1, len(CATEGORIES))
         if choice is not None:
@@ -163,7 +175,7 @@ def add_prompt(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 추가 ===')
     title = read_required_text('제목: ')
     content = read_prompt_content()
-    category = select_category()
+    category = select_category(prompts)
     prompts.append({
         'title': title,
         'content': content,
@@ -196,7 +208,7 @@ def show_list(prompts: list[dict]) -> None:
 
 def show_by_category(prompts: list[dict]) -> None:
     print('\n=== 카테고리별 조회 ===')
-    category = select_category()
+    category = select_category(prompts)
     items = []
     for number, prompt in numbered_prompts(prompts):
         if prompt['category'] == category:
