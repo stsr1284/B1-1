@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+*.zip
+/B2-2/submission*/
+/B2-2/results/mock/
+/B2-2/results/demo/
