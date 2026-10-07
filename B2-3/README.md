@@ -6,14 +6,15 @@
 - 원문 1~1,500자, 레벨별 변환문·최대 2개 표현 설명·학습 팁
 - 레벨 탭은 결과를 전환할 뿐 추가 API 요청을 보내지 않음
 - 반응형, 키보드 탭 조작, 로딩·입력 오류·API 오류·한도·타임아웃 안내
-- 로그인·DB·저장·Jev·보너스 기능 없음
 
 ## 배포 및 저장소
 
 - 배포 URL: https://levelly-english-coach.vercel.app
-- GitHub: https://github.com/jimchoi9/codyssey-native/tree/codex/english-level-coach/B2-3
+- GitHub: https://github.com/stsr1284/B1-1/tree/main/B2-3
 - 모노레포 프로젝트 경로: `B2-3`
-- 작업 브랜치: `codex/english-level-coach` (main에 병합하지 않음). Git 연결 후 작업 브랜치 푸시는 Preview 배포를 생성하며 검증된 배포를 Production으로 승격할 수 있습니다.
+- 현재 저장소 브랜치: `main`
+- 배포와 화면·AI 코딩 증빙은 팀원이 완료한 Levelly 자료를 사용합니다. 제공받은 프로젝트와 현재 실행 코드의 일치 및 로컬 재검증은 [제출본 확인 기록](docs/current-audit-2026-10-07.md)에 정리했습니다.
+- 요구사항별 확인 상태: [요구사항 체크리스트](요구사항_체크리스트.md)
 
 ## 기술 스택과 구조
 
@@ -29,10 +30,10 @@ requirements.txt           Python 의존성
 pyproject.toml              Python 버전과 Vercel entrypoint
 vercel.json                 실행 시간과 응답 보안 헤더
 .env.example                값 없는 환경 변수 예시
- tests/                     Python 및 브라우저 테스트
- docs/service-plan.md       제출용 기획서
- docs/verification.md       확인 결과와 제한
- docs/evidence/             화면·AI 도구 사용 증빙
+tests/                     Python 및 브라우저 테스트
+docs/service-plan.md       제출용 기획서
+docs/verification.md       확인 결과와 제한
+docs/evidence/             화면·AI 도구 사용 증빙
 ```
 
 ## 로컬 실행
