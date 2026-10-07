@@ -55,6 +55,8 @@ python3.13 main.py
 
 `main()`에서 만든 리스트를 각 기능에 전달합니다. 각 항목은 `title`, `content`, `category`, `favorite` 필드를 가진 딕셔너리이며, 새 항목의 `favorite` 기본값은 `False`입니다.
 
+`numbered_prompts()`가 원래 번호를 부여하고 `print_prompt_list()`가 표시를 담당합니다. 카테고리·검색·즐겨찾기는 번호를 부여한 뒤 필터링하므로, 결과의 3번 항목을 상세 조회할 때도 원래 3번을 선택합니다.
+
 별도의 `tests/` 폴더는 없습니다. 검증 로그에 기록한 입력을 `python3.13 -B main.py` 실행 후 순서대로 입력하면 콘솔 흐름을 다시 확인할 수 있습니다. 실제 검증에 사용한 실행 파일은 `/opt/homebrew/opt/python@3.13/bin/python3.13`입니다. `-B`는 캐시 파일 생성을 방지합니다.
 
 ## 제출용 스크린샷 순서

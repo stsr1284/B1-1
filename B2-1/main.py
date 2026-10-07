@@ -174,6 +174,11 @@ def add_prompt(prompts: list[dict]) -> None:
     print(f'등록 번호: {len(prompts)} | 제목: {title}')
 
 
+def numbered_prompts(prompts: list[dict]) -> list[tuple[int, dict]]:
+    """필터를 적용하기 전에 전체 목록의 원래 번호를 부여한다."""
+    return list(enumerate(prompts, start=1))
+
+
 def print_prompt_list(items: list[tuple[int, dict]]) -> None:
     if not items:
         print('프롬프트가 없습니다.')
@@ -186,14 +191,14 @@ def print_prompt_list(items: list[tuple[int, dict]]) -> None:
 
 def show_list(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 목록 ===')
-    print_prompt_list(list(enumerate(prompts, start=1)))
+    print_prompt_list(numbered_prompts(prompts))
 
 
 def show_by_category(prompts: list[dict]) -> None:
     print('\n=== 카테고리별 조회 ===')
     category = select_category()
     items = []
-    for number, prompt in enumerate(prompts, start=1):
+    for number, prompt in numbered_prompts(prompts):
         if prompt['category'] == category:
             items.append((number, prompt))
     print(f'[{category}] 카테고리 프롬프트:')
@@ -204,7 +209,7 @@ def search_prompts(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 검색 ===')
     keyword = read_required_text('검색어: ').casefold()
     items = []
-    for number, prompt in enumerate(prompts, start=1):
+    for number, prompt in numbered_prompts(prompts):
         if keyword in prompt['title'].casefold() or keyword in prompt['content'].casefold():
             items.append((number, prompt))
     print('검색 결과:')
@@ -250,7 +255,7 @@ def toggle_favorite(prompts: list[dict]) -> None:
 def show_favorites(prompts: list[dict]) -> None:
     print('\n=== 즐겨찾기 목록 ===')
     items = []
-    for number, prompt in enumerate(prompts, start=1):
+    for number, prompt in numbered_prompts(prompts):
         if prompt['favorite']:
             items.append((number, prompt))
     print_prompt_list(items)
