@@ -116,6 +116,25 @@ def read_required_text(label: str) -> str:
         print('빈 값은 입력할 수 없습니다. 다시 입력해주세요.')
 
 
+def read_prompt_content() -> str:
+    """한 줄 입력 또는 /multi로 시작하는 여러 줄 내용을 받는다."""
+    first_line = read_required_text('내용 (여러 줄 입력은 /multi): ')
+    if first_line != '/multi':
+        return first_line
+    print('내용을 여러 줄로 입력하세요. 한 줄에 /end를 입력하면 완료됩니다.')
+    lines = []
+    while True:
+        line = input()
+        if line.strip() == '/end':
+            content = '\n'.join(lines)
+            if content.strip():
+                return content
+            print('내용이 비어 있습니다. 내용을 다시 입력하고 /end로 완료해주세요.')
+            lines = []
+        else:
+            lines.append(line)
+
+
 def parse_number(value: str, minimum: int, maximum: int) -> int | None:
     """공백과 앞자리 0을 허용하되 범위 밖·비숫자 입력은 거절한다."""
     value = value.strip()
@@ -143,7 +162,7 @@ def select_category() -> str:
 def add_prompt(prompts: list[dict]) -> None:
     print('\n=== 프롬프트 추가 ===')
     title = read_required_text('제목: ')
-    content = read_required_text('내용: ')
+    content = read_prompt_content()
     category = select_category()
     prompts.append({
         'title': title,
