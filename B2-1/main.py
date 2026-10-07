@@ -241,11 +241,15 @@ def select_prompt(prompts: list[dict]) -> dict | None:
     if not prompts:
         print('프롬프트가 없습니다.')
         return None
-    choice = parse_number(input('프롬프트 번호 입력: '), 1, len(prompts))
-    if choice is not None:
-        return prompts[choice - 1]
-    print('잘못된 프롬프트 번호입니다.')
-    return None
+    print(f'1~{len(prompts)}번을 선택하세요. 0번은 선택 취소입니다.')
+    while True:
+        choice = parse_number(input('프롬프트 번호 입력: '), 0, len(prompts))
+        if choice == 0:
+            print('선택을 취소했습니다.')
+            return None
+        if choice is not None:
+            return prompts[choice - 1]
+        print('잘못된 프롬프트 번호입니다. 다시 입력해주세요.')
 
 
 def show_detail(prompts: list[dict]) -> None:
