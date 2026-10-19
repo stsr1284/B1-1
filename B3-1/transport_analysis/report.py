@@ -85,7 +85,7 @@ def render_report(stats: dict, quality: dict, sources: dict, manifest: dict) -> 
     most = min(MODES, key=lambda k: m[k]["weekend_change_pct"])
     lines += [
         "",
-        f"**관찰:** 주말 감소율이 가장 큰 수단은 {NAMES[most]}다({m[most]['weekend_change_pct']:+.2f}%, 그림 2). **활용:** 수단별 주중·주말 수요 수준을 따로 고려할 근거다. 통근·관광 목적의 차이라는 해석은 개인 목적 자료가 없어 가설로 남긴다.",
+        f"**관찰:** 주말 감소율이 가장 큰 수단은 {NAMES[most]}이며, 감소율은 {m[most]['weekend_change_pct']:+.2f}%다(그림 2). **활용:** 수단별 주중·주말 수요 수준을 따로 고려할 근거다. 통근·관광 목적의 차이라는 해석은 개인 목적 자료가 없어 가설로 남긴다.",
         "",
         "### 인사이트 2. 월별 수요 변동의 크기를 구분할 수 있다",
         "",

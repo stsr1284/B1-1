@@ -7,7 +7,7 @@
 - 설계: [아키텍처](docs/ARCHITECTURE.md), [코드 규칙](docs/CODE_CONVENTIONS.md), [파일 구조](docs/FILE_STRUCTURE.md), [협업 규칙](docs/COLLABORATION.md).
 - 학습 자료: [소프트웨어 설계 용어 원문](docs/SOFTWARE_DESIGN_TERMS.md). 이 자료의 기온 예시는 당시 대화 기록이며 현재 주제는 교통이다.
 
-GitHub 제출: [작업 브랜치의 B3-1](https://github.com/stsr1284/B1-1/tree/codex/b3-1-transport-analysis/B3-1). 2026-10-19 제출 커밋 `d1a7c24`의 원격 반영과 대표 결과 파일 일치를 확인했다.
+GitHub 제출: [main의 B3-1](https://github.com/stsr1284/B1-1/tree/main/B3-1) · [실행된 노트북](https://github.com/stsr1284/B1-1/blob/main/B3-1/analysis.ipynb).
 
 ## 실행
 
@@ -33,6 +33,27 @@ python verify.py --raw --seed-dir ../B3-2/data/seed
 ```
 
 공식 다운로드는 API 키 없는 파일 서비스다. 파일 식별자가 변경되면 각 공식 페이지의 파일명·기간을 확인한 뒤 수집 설정과 데이터 버전을 함께 갱신한다. 원본이 수정되어 과거 해시와 다르면 그 변경을 숨기지 않는다.
+
+## 실행된 Jupyter 노트북으로 보기
+
+- [analysis.ipynb](analysis.ipynb): 코드·표·그래프·검증 출력이 저장된 실행 완료 노트북.
+- [HTML 결과](outputs/analysis.html): 표·그래프를 한 화면 흐름으로 읽는 미리보기. 브라우저에서 열면 되고 Python 설치가 필요 없다.
+
+노트북은 집계본을 검증한 뒤 제출 모듈로 통계를 다시 계산하고, 저장된 statistics.json 및 정제본과 대조한다. 그래프 4개도 현재 계산값으로 새로 만든다. 대화형 대시보드·예측 보너스와는 구분한다.
+
+다시 실행하거나 JupyterLab에서 직접 사용하려면 B3-1의 가상환경에서 실행한다.
+
+```bash
+python -m pip install -r requirements-notebook.txt
+python -m jupyterlab analysis.ipynb
+```
+
+JupyterLab의 `Run → Run All Cells`로 전체 셀을 실행할 수 있다. 터미널에서 실행·저장·HTML 내보내기를 하려면 다음을 사용한다.
+
+```bash
+python -m jupyter nbconvert --to notebook --execute --inplace analysis.ipynb
+python -m jupyter nbconvert --to html --no-input --embed-images --output analysis --output-dir outputs analysis.ipynb
+```
 
 ## 데이터와 계산 기준
 

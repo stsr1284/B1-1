@@ -14,11 +14,13 @@ B1-1/                         # repository root
 |   |   `-- COLLABORATION.md
 |   |-- README.md
 |   |-- REPORT.md
+|   |-- analysis.ipynb       # executed notebook with tables and plots
 |   |-- analyze.py
 |   |-- fetch_data.py
 |   |-- verify.py
 |   |-- requirements.txt
 |   |-- requirements-dev.txt
+|   |-- requirements-notebook.txt
 |   |-- pyproject.toml        # Ruff/pytest configuration
 |   |-- transport_analysis/
 |   |   |-- __init__.py
@@ -36,6 +38,7 @@ B1-1/                         # repository root
 |   |       |-- observations.csv
 |   |       `-- manifest.json
 |   |-- outputs/
+|   |   |-- analysis.html    # rendered notebook, embedded images
 |   |   |-- quality.json
 |   |   |-- statistics.json
 |   |   |-- daily_metrics.csv
