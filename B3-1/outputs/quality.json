@@ -1,0 +1,39 @@
+{
+  "input_rows": 1095,
+  "output_rows": 1095,
+  "days_per_mode": 365,
+  "missing_dates": 0,
+  "missing_values": 0,
+  "duplicate_keys": 0,
+  "negative_values": 0,
+  "imputed_rows": 0,
+  "removed_rows": 0,
+  "zero_values": 0,
+  "iqr_flags": {
+    "bike": {
+      "lower": -36571.0,
+      "upper": 242757.0,
+      "count": 0,
+      "dates": [],
+      "action": "유지"
+    },
+    "bus": {
+      "lower": 1677103.0,
+      "upper": 7552879.0,
+      "count": 0,
+      "dates": [],
+      "action": "유지"
+    },
+    "subway": {
+      "lower": 2489869.5,
+      "upper": 11488241.5,
+      "count": 0,
+      "dates": [],
+      "action": "유지"
+    }
+  },
+  "policy": "IQR 탐색 후보는 원본과 대조하고 유지. 교통 수요 극값을 오류로 단정하지 않음",
+  "source_count": 26,
+  "source_rows": 15165733,
+  "trailing_empty_fields_removed": 207339
+}

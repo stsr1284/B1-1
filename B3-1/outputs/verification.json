@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "independent_calculation": "Python stdlib csv/statistics",
+  "rows": 1095,
+  "source_files": 26,
+  "report_links": "passed",
+  "raw_csv_reaggregation": "passed (26 files)",
+  "rolling7_and_daily_metrics": "passed (1095 rows)",
+  "verified": [
+    "source aggregate totals/rows",
+    "all date/mode values",
+    "mean/total/extrema",
+    "weekday/monthly averages",
+    "anomaly counts/deviations",
+    "joint low dates"
+  ],
+  "b3_2_seed": "byte_identical",
+  "dataset_sha256": "afd664f06a0b64c64cbf0fbe632967eec0288df1f491790e6bea3181f8781d31"
+}
