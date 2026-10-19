@@ -7,6 +7,8 @@
 - 설계: [아키텍처](docs/ARCHITECTURE.md), [코드 규칙](docs/CODE_CONVENTIONS.md), [파일 구조](docs/FILE_STRUCTURE.md), [협업 규칙](docs/COLLABORATION.md).
 - 학습 자료: [소프트웨어 설계 용어 원문](docs/SOFTWARE_DESIGN_TERMS.md). 이 자료의 기온 예시는 당시 대화 기록이며 현재 주제는 교통이다.
 
+GitHub 제출: [작업 브랜치의 B3-1](https://github.com/stsr1284/B1-1/tree/codex/b3-1-transport-analysis/B3-1). 2026-10-19 제출 커밋 `d1a7c24`의 원격 반영과 대표 결과 파일 일치를 확인했다.
+
 ## 실행
 
 검증 환경: Python 3.13.1, pandas 3.0.6, Matplotlib 3.11.2. Python 3.12 이상이 필요하다. B3-2 원문의 최소 Python 3.10 이상 조건도 충족하는 환경이다.
