@@ -1,0 +1,26 @@
+{
+  "schema_version": "2.0",
+  "dataset_id": "seoul-public-mobility-2025-v1",
+  "period_start": "2025-01-01",
+  "period_end": "2025-12-31",
+  "timezone": "Asia/Seoul",
+  "unit": "건",
+  "row_count": 1095,
+  "mode_counts": {
+    "bike": 365,
+    "bus": 365,
+    "subway": 365
+  },
+  "primary_key": [
+    "date",
+    "mode"
+  ],
+  "dataset_sha256": "afd664f06a0b64c64cbf0fbe632967eec0288df1f491790e6bea3181f8781d31",
+  "sources_sha256": "ee0964863520df5a5910b5dd8f5614871beb88b2b395098d9ec194573f3974a1",
+  "scope": "서울시 공개 자료 전체 서비스 범위. 지하철 수도권 역 및 서울버스 시외 정류장 포함 가능",
+  "value_definitions": {
+    "bike": "따릉이 대여 건수",
+    "bus": "서울버스 승차 건수",
+    "subway": "공개 지하철 승차 건수"
+  }
+}

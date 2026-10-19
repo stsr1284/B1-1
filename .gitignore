@@ -9,3 +9,6 @@ __pycache__/
 /B2-2/submission*/
 /B2-2/results/mock/
 /B2-2/results/demo/
+/B3-1/data/raw/
+/B3-1/.pytest_cache/
+/B3-1/.ruff_cache/
