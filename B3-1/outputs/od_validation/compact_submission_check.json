@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-28",
+  "passed": true,
+  "raw_files_present": false,
+  "monthly_parquet_present": false,
+  "report_sha256_equal": true,
+  "figures_regenerated": 4
+}

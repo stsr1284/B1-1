@@ -1,120 +1,86 @@
-# B3-1 · 서울 이동 패턴 분석
+# B3-1 · 서울 지역별 대중교통 이동 변화 분석
 
-2025년 따릉이 대여·서울버스 승차·공개 지하철 승차를 비교하는 Python 시계열 분석 과제다. 공식 CSV 26개, 15,165,733행을 검증하고 **365일×3수단=1,095행**으로 정리했다.
+**시간대별 행정동 OD로 어느 지역행 이동이 늘고 줄었는지 비교한다.** 주말·낮·저녁 이동은 관광·여가 방문 변화의 단서로 해석하며 관광객 수로 단정하지 않는다.
 
-- 결과: [REPORT.md](REPORT.md) — 질문 3개, 분석 기법 4종, 그래프 4개, 인사이트 3개와 한계.
-- 과제 기준: [과제 원문](과제문.md), [실행 계획·완료 체크리스트](진행계획.md).
-- 설계: [아키텍처](docs/ARCHITECTURE.md), [코드 규칙](docs/CODE_CONVENTIONS.md), [파일 구조](docs/FILE_STRUCTURE.md), [협업 규칙](docs/COLLABORATION.md).
-- 학습 자료: [소프트웨어 설계 용어 원문](docs/SOFTWARE_DESIGN_TERMS.md). 이 자료의 기온 예시는 당시 대화 기록이며 현재 주제는 교통이다.
+- 최종 결과: [REPORT.md](REPORT.md)
+- 그래프 미리보기: [outputs/od_preview.html](outputs/od_preview.html)
+- 검증·완료 여부: [요구사항 체크리스트](docs/COMPLETION_CHECKLIST.md)
+- [분석 계획](docs/ANALYSIS_PLAN.md) · [데이터 사전](docs/DATA_DICTIONARY.md) · [과제 원문](과제문.md)
 
-GitHub 제출: [main의 B3-1](https://github.com/stsr1284/B1-1/tree/main/B3-1) · [실행된 노트북](https://github.com/stsr1284/B1-1/blob/main/B3-1/analysis.ipynb).
-
-## 실행
-
-검증 환경: Python 3.13.1, pandas 3.0.6, Matplotlib 3.11.2. Python 3.12 이상이 필요하다. B3-2 원문의 최소 Python 3.10 이상 조건도 충족하는 환경이다.
-
-B3-1 폴더에서 실행한다.
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
-python analyze.py
-```
-
-저장소에 포함한 일별 집계본으로 실행하므로 API 키·로그인·네트워크 없이 그래프와 리포트를 재생성할 수 있다. 필수 입력이 없거나 해시·계약이 맞지 않으면 오류를 출력하고 종료 코드 1로 끝난다.
-
-공식 원본부터 다시 확인하려면 다음을 실행한다. 약 1.7GB를 받으며 `data/raw/`는 Git에서 제외한다. 기존 원본은 재사용하고 해시가 바뀌면 자동 덮어쓰기 대신 오류로 알린다.
-
-```bash
-python fetch_data.py
-python analyze.py
-python verify.py --raw --seed-dir ../B3-2/data/seed
-```
-
-공식 다운로드는 API 키 없는 파일 서비스다. 파일 식별자가 변경되면 각 공식 페이지의 파일명·기간을 확인한 뒤 수집 설정과 데이터 버전을 함께 갱신한다. 원본이 수정되어 과거 해시와 다르면 그 변경을 숨기지 않는다.
-
-## 실행된 Jupyter 노트북으로 보기
-
-- [analysis.ipynb](analysis.ipynb): 코드·표·그래프·검증 출력이 저장된 실행 완료 노트북.
-- [HTML 결과](outputs/analysis.html): 표·그래프를 한 화면 흐름으로 읽는 미리보기. 브라우저에서 열면 되고 Python 설치가 필요 없다.
-
-노트북은 집계본을 검증한 뒤 제출 모듈로 통계를 다시 계산하고, 저장된 statistics.json 및 정제본과 대조한다. 그래프 4개도 현재 계산값으로 새로 만든다. 대화형 대시보드·예측 보너스와는 구분한다.
-
-다시 실행하거나 JupyterLab에서 직접 사용하려면 B3-1의 가상환경에서 실행한다.
-
-```bash
-python -m pip install -r requirements-notebook.txt
-python -m jupyterlab analysis.ipynb
-```
-
-JupyterLab의 `Run → Run All Cells`로 전체 셀을 실행할 수 있다. 터미널에서 실행·저장·HTML 내보내기를 하려면 다음을 사용한다.
-
-```bash
-python -m jupyter nbconvert --to notebook --execute --inplace analysis.ipynb
-python -m jupyter nbconvert --to html --no-input --embed-images --output analysis --output-dir outputs analysis.ipynb
-```
-
-## 데이터와 계산 기준
-
-| 항목 | 기준 |
-|---|---|
-| 출처 | 서울특별시 열린데이터광장. 공공누리 제1유형, 출처 표시 |
-| 기간 | 2025-01-01~2025-12-31, 한국 날짜 기준 |
-| 관측값 | 따릉이=대여 건수, 버스·지하철=승차 건수. 하차를 더하지 않음 |
-| 공간 범위 | 각 공식 자료 전체 서비스 범위. 서울 밖 지하철역·버스 정류장도 포함될 수 있음 |
-| 정제 | UTF-8/CP949 실제 헤더 판별, 빈 끝 필드만 보정, 전체 행의 날짜·숫자·중복 검사 |
-| 누락·이상값 | 누락·음수·키 중복은 오류. IQR 극값은 표시·유지, 임의 보간·삭제 없음 |
-| 비교 | 요일 평균, 월별 일평균, 7일 이동평균, 월×요일 평균 대비 편차 |
-| 해석 한계 | 고유 인구·수송분담률·개인 환승·인과 효과를 나타내지 않음 |
-
-공식 원본: [따릉이](https://data.seoul.go.kr/dataList/OA-14994/F/1/datasetView.do), [버스](https://data.seoul.go.kr/dataList/OA-12912/S/1/datasetView.do), [지하철](https://data.seoul.go.kr/dataList/OA-12914/F/1/datasetView.do).
-
-원본 메타데이터·해시: [sources.json](data/sources.json). 파일별 일별 합계: `data/aggregated/`. 정제본과 계약: [observations.csv](data/processed/observations.csv), [manifest.json](data/processed/manifest.json).
-
-## 검증
-
-```bash
-python -m pip install -r requirements-dev.txt
-ruff check .
-ruff format --check .
-python -m pytest -q
-python verify.py --seed-dir ../B3-2/data/seed
-python analyze.py --output-root /tmp/b3-1-reproduce
-```
-
-- 단위 테스트: 날짜 누락·음수/무한대/결측·중복·이동평균 공백·승차만 집계·CSV 구조·다운로드 실패 확인.
-- 독립 검증: pandas 계산과 별개로 Python 표준 라이브러리 `csv`·`statistics`로 수단별 합계/평균/극값, 월·요일 평균, 이상일·공동 감소일, 7일 이동평균을 전수 대조한다.
-- `--raw`: 공식 원본 26개의 SHA-256과 날짜별 합계를 별도 `DictReader` 집계로 재확인한다.
-- 별도 출력 재현: 정제 CSV·manifest·통계 JSON·리포트·PNG의 바이트 일치를 확인한다. 결과 수치는 무작위성·외부 AI 호출에 의존하지 않는다.
-- 그래프: 영어 표기로 폰트 환경 차이를 줄이고, 리포트에 한국어 해설을 붙였다. 축·단위·범례·잘림을 직접 확인한다.
-- 증거: [verification.json](outputs/verification.json), [품질 결과](outputs/quality.json), [통계](outputs/statistics.json), [일별 계산값](outputs/daily_metrics.csv).
-
-실제 확인(2026-10-19): pytest **22개 통과**, Ruff 검사·포맷 통과, 공식 원본 26개 독립 재집계 통과, 그래프 4개 눈으로 확인, 별도 재실행 산출물 10개 바이트 일치.
-
-## B3-2 인계
+## 자료와 파일 구조
 
 ```text
-public CSV -> checked daily aggregates -> observations.csv
-                                             |
-                                      exact copy + hash
-                                             |
-                                       B3-2/data/seed
-                                             |
-                                    future Firestore + AI
+B3-1/
+├── 과제문.md / images/           원문 보존
+├── REPORT.md                    최종 분석 리포트
+├── run_od_analysis.py            이번 분석 실행 진입점
+├── od_analysis/                 참조·정제·검증·분석·보고서 모듈
+├── tests/od/                    결측·중복·코드 경계 사례 검증
+├── data/
+│   ├── raw/                     이번 분석 원본, 내용 불변
+│   │   ├── transit_hourly_od/    2023~2026 공식 ZIP 66개
+│   │   ├── locations/admin/     공식 행정동 마스터·월별 코드표
+│   │   └── calendar/            2023~2026 공식 달력 페이지
+│   ├── processed/transit_od/    원본과 분리한 집계·비교표
+│   │   └── months/              재생성 가능한 월별 중간 Parquet
+│   └── metadata/               현재 자료 출처·원본 해시·이동 기록
+├── outputs/
+│   ├── od_figures/              보고서용 PNG 4개
+│   ├── od_validation/           이번 실행의 감사·독립 검산
+│   └── od_preview.html          그래프 미리보기
+├── docs/                        이번 분석 기준·체크리스트
+└── tmp/                         과거 작업과 캐시, 제출 대상 아님
 ```
 
-`observations.csv`와 `manifest.json`을 B3-2/data/seed에 동일하게 전달한다. 기본 키는 (date, mode), 시드 문서 ID는 dataset_id+mode+date를 사용하도록 설계했다. 현재 B3-2는 계획·초기 자료 단계다. DB 적재·AI·배포를 완료한 것으로 보지 않는다.
+[OD 원본 확보 결과](data/TRANSIT_OD.md) · [사용/보관 데이터 구분](data/README.md)
 
-## 학습자가 설명할 핵심
+주 분석은 월별 이름·코드가 유지된 서울 417개 동 중 별칭 충돌이 발견된 고덕1동과 일부 관측일에 기록이 없는 18개 동을 전 기간 제외한 **398개 동 사이 이동**이다. 보조 지표는 서울 밖 출발과 같은 동 내부 이동을 포함한다. 두 범위를 합산하지 않는다.
 
-| 항목 | 이 과제에서 설명할 내용 |
-|---|---|
-| 분석 질문 | 요일 차이·월별 변화·평소와 다른 날짜를 왜 비교했는가 |
-| 정제 | 결측과 0의 차이, 완전 중복과 노선/정류장별 별도 관측의 차이 |
-| 트렌드·계절성·노이즈 | 7일 평균의 장기 흐름, 반복 요일, 월별 패턴과 잔차. 1년으로 반복 계절성 확정 불가 |
-| 분석 방법 | 이동평균의 첫 6일이 빈 이유, 월 합계 대신 일평균을 쓴 이유 |
-| 관찰·가설 | 수치로 확인한 주말 감소와 통근·날씨 등 미검증 원인 해석을 구분 |
-| AI 검증 | 생성 코드를 독립 재계산·테스트로 확인하고 본인이 근거와 한계를 설명 |
+2023~2025 장기 비교 및 2025↔2026 **1~8월** 비교를 제공한다. 2026년 9~10월은 지역 코드 참조 범위 밖의 최근 탐색값이며, 10월은 21일까지의 부분 월이다.
 
-개인 설명 능력은 사용자가 직접 확인해야 한다. 코드 검사가 통과했다는 이유로 학습 목표를 자동 완료 처리하지 않는다. 선택 보너스인 대시보드·분해/예측은 이번 필수 범위에 포함하지 않았다.
+## 재실행
+
+Python 3.13 환경에서 검증한다. 그래프를 새로 그릴 때 한국어 폰트(AppleGothic, NanumGothic, Malgun Gothic 중 하나)가 필요하다. 저장된 PNG는 폰트 설치 없이 볼 수 있다. 패키지 버전은 [requirements-od.txt](requirements-od.txt)에 고정했다.
+
+```bash
+cd B1-1/B3-1  # 저장소를 내려받은 상위 폴더 기준
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-od.txt
+# 원본이 없는 환경에서만 실행: 공식 목록 66개, 약 5.89GB
+.venv/bin/python scripts/acquire_transit_hourly_od.py
+# 원본 검증 -> 참조/중복 감사 -> 고정 패널 재계산 -> 분석 -> 그림/리포트 -> 독립 검산
+.venv/bin/python run_od_analysis.py
+# 경계 사례 테스트
+.venv/bin/python -m unittest discover -s tests/od -v
+```
+
+원본 66ZIP 이외에 행정동 마스터·월별 코드표·달력 원본이 필요하다. 자동 수집 범위는 OD ZIP이며 참조 파일은 아래 방법으로 확보한다. 공식 자료가 개정되면 과거 스냅샷과 달라질 수 있으므로 [원본 목록](data/metadata/catalog.json)의 SHA-256과 대조한다. 불일치 파일로 기존 결과를 재현했다고 판단하지 않는다.
+
+| 원본 | 확보 방법 | 저장 위치 |
+|---|---|---|
+| 시간대별 대중교통 OD | `scripts/acquire_transit_hourly_od.py` 실행. 포함된 `inventory.json`의 고정된 66개 다운로드 항목 사용 | `data/raw/transit_hourly_od/연도/` |
+| 대중교통 행정동 마스터 | [OA-21234](https://data.seoul.go.kr/dataList/OA-21234/S/1/datasetView.do)의 CSV 다운로드. 요청 URL·POST 인자는 [수집 기록](data/metadata/transit_hourly_od/admin_master.json)에 있음 | `data/raw/locations/admin/transit_admin_master_20261027.csv` |
+| 월별 행정동 코드표 | [서울 생활이동](https://data.seoul.go.kr/dataVisual/seoul/capitalRegionLivingMigration.do)에서 `admin_codes.zip` 다운로드. 요청 인자와 ZIP 내부 목록은 [참조 수집 기록](data/metadata/reference_sources.json)에 있음 | `data/raw/locations/admin/admin_codes.zip` |
+| 공휴일 표 | [한국천문연구원 달력](https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2026)의 `search_year`를 2023~2026으로 바꿔 HTML 응답을 UTF-8로 보관. 후속 공지는 [달력 검증 기록](outputs/od_validation/calendar_sources.json) 참조 | `data/raw/calendar/calendar_data_연도.html` |
+
+참조 원본이 없더라도 아래 소형 표 재생성 경로로 제출된 수치와 그림을 확인할 수 있다.
+
+대용량 원본 없이 **제공한 소형 집계표로 그림·보고서만 재생성**하려면:
+
+```bash
+.venv/bin/python run_od_analysis.py --from-tables
+```
+
+이 모드는 원본 재검증과 동일하지 않다. 전체 재실행에는 원본/참조가 필요하다. 전체 원본을 디스크에 압축 해제하지 않으며, 파일 단위로 읽어 가공본만 생성한다. 이미 처리한 파일은 원본·참조·가공 해시가 일치할 때 재사용한다. 검증 과정에서 처음 별칭 충돌을 발견하면 고정 패널을 확정해 한 차례 재계산한다.
+
+## 처리·해석 기준
+
+- 원본 24일 공백은 0이나 보간값으로 채우지 않는다. 원본의 빈 시간 셀도 미상이다.
+- 동일 행 중복은 한 번만 유지, 동일 OD 키의 값 충돌은 제외/기록한다. 지역 코드 자릿수를 임의 변환하지 않는다.
+- 분석은 알려진 값의 합이다. 월×요일 가중치를 맞추고 공휴일·특별일을 분리한다. 이상일 포함/제외와 시간 구간 변경 결과를 함께 확인한다.
+- 원본의 시간이 승차/하차 중 무엇인지는 미확정이므로 “원본 시간대의 해당 지역행 이동”이라고 표현한다.
+- 관광객 수·인기 원인·상권 매출·접근성의 인과 효과를 증명하는 결과는 아니다.
+
+이전 분석 코드·수집 스크립트·테스트·검증 로그는 `tmp/2026-10-28/legacy_submission_cleanup/`에 분리했다. 현재 실행은 `run_od_analysis.py`와 `od_analysis/`만 사용한다.
+
+원본·보조 보관본·캐시·비밀 키는 Git에서 제외한다. 과제 제출에는 코드, 리포트, PNG, 소형 분석표, 출처·수집 방법과 검증 기록을 포함한다. GitHub 반영 상태는 [완료 체크리스트](docs/COMPLETION_CHECKLIST.md)를 따른다.

@@ -5,6 +5,9 @@ __pycache__/
 *.py[cod]
 .venv/
 .DS_Store
+/tmp/
+/B3-1/tmp/
+/B3-2/tmp/
 *.zip
 /B2-2/submission*/
 /B2-2/results/mock/
@@ -12,3 +15,36 @@ __pycache__/
 /B3-1/data/raw/
 /B3-1/.pytest_cache/
 /B3-1/.ruff_cache/
+/B3-2/backend/.runtime/
+/B3-2/backend/.pytest_cache/
+/B3-2/backend/.ruff_cache/
+/B3-2/backend/.venv/
+/B3-2/frontend/dist/
+/B3-2/frontend/node_modules/
+/B3-2/tests/e2e/node_modules/
+/B3-2/backend/secrets/
+/B3-2/**/firebase-adminsdk*.json
+/B3-2/**/*service-account*.json
+# B3 card per-source regeneration cache; final merged aggregates/reports stay reviewable.
+B3-1/outputs/mobility_change/card_period_processing_v2/
+B3-1/outputs/mobility_change/card_rail20_sensitivity_v1/
+B3-1/outputs/mobility_change/card_rail20_sensitivity_parallel_v1/
+B3-1/outputs/mobility_change/card_rail20_sensitivity_tail_v1/
+/B3-1/outputs/mobility_change/**/*.json.lock
+/B3-1/outputs/mobility_change/card_period_full_55_audit_v1/
+
+# Reproducible monthly intermediate cache; compact summaries and reports are shared.
+/B3-1/data/products/seoul-tourism-longterm-2023-2025-v1/months/
+
+# B3-1 reproducible working caches; final comparisons/reports remain shareable.
+/B3-1/data/processed/od_days/
+/B3-1/data/processed/population_months/
+/B3-1/outputs/validation/*.log
+/B3-1/outputs/validation/analysis.lock
+
+# Current B3-1 OD: immutable auxiliary originals and reproducible working cache.
+/B3-1/data/archive/
+/B3-1/data/processed/transit_od/months/
+/B3-1/outputs/od_validation/*.log
+/B3-1/outputs/od_validation/*.lock
+/B3-1/data/metadata/transit_hourly_od/*.lock
