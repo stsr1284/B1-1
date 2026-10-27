@@ -3,6 +3,7 @@
 **시간대별 행정동 OD로 어느 지역행 이동이 늘고 줄었는지 비교한다.** 주말·낮·저녁 이동은 관광·여가 방문 변화의 단서로 해석하며 관광객 수로 단정하지 않는다.
 
 - 최종 결과: [REPORT.md](REPORT.md)
+- [GitHub 제출 브랜치](https://github.com/stsr1284/B1-1/tree/codex/b3-1-od-submission/B3-1) — 2026-10-28 검증 결과 업로드, main 미병합
 - 그래프 미리보기: [outputs/od_preview.html](outputs/od_preview.html)
 - 검증·완료 여부: [요구사항 체크리스트](docs/COMPLETION_CHECKLIST.md)
 - [분석 계획](docs/ANALYSIS_PLAN.md) · [데이터 사전](docs/DATA_DICTIONARY.md) · [과제 원문](과제문.md)
