@@ -3,15 +3,15 @@ import io
 import json
 import zipfile
 import pandas as pd
-from .common import RAW, OUT, AUDIT, META, ROOT, sha, write_json
+from .common import WORK, CACHE, RAW, OUT, AUDIT, META, ROOT, sha, write_json
 
 
 def prepare_regions():
     OUT.mkdir(parents=True, exist_ok=True)
-    catalog = json.loads((ROOT/'data/metadata/catalog.json').read_text())
+    catalog = json.loads((ROOT/'data/sources/catalog.json').read_text())
     for source in catalog['files']:
         if source['path'].startswith('data/raw/locations/admin/'):
-            assert sha(ROOT/source['path']) == source['sha256'], 'Reference original hash changed'
+            assert sha(WORK/source['path']) == source['sha256'], 'Reference original hash changed'
     master = pd.read_csv(RAW / 'locations/admin/transit_admin_master_20261027.csv', encoding='cp949', dtype=str)
     master.columns = ['raw_id', 'dong', 'district', 'province']
     # Only explicitly listed raw IDs are aliases. Never append/remove a digit.

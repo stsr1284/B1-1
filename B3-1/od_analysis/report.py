@@ -1,10 +1,9 @@
 """Render figures and a report exclusively from generated analysis tables."""
 import os
-import base64
-import html
 import json
 from pathlib import Path
-os.environ.setdefault('MPLCONFIGDIR', str(Path(__file__).resolve().parents[1]/'tmp/matplotlib_od'))
+from .common import WORK
+os.environ.setdefault('MPLCONFIGDIR', str(WORK/'matplotlib'))
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -12,7 +11,7 @@ from matplotlib import font_manager
 from matplotlib.ticker import FuncFormatter
 import numpy as np
 import pandas as pd
-from .common import ROOT, OUT, AUDIT, FIG, HOURS
+from .common import ROOT, OUT, EVIDENCE as AUDIT, FIG, HOURS
 from .analyze import FOCUS
 
 LABELS={'weekday_morning':'평일 07–10시','weekend_day':'주말 10–22시','weekend_core':'주말 12–20시'}
@@ -135,18 +134,18 @@ def main():
 
 ## 2. 데이터와 분석 범위
 
-- [서울시 행정동 단위 대중교통 출발지/도착지 승객수 OA-21226](https://data.seoul.go.kr/dataList/OA-21226/F/1/datasetView.do): 2023-01-01~2026-10-21, 월 ZIP 45개·일 ZIP 21개. 5.89GB 원본, **{summary['raw_rows']:,}행**. [원본 확보 기록](data/TRANSIT_OD.md).
+- [서울시 행정동 단위 대중교통 출발지/도착지 승객수 OA-21226](https://data.seoul.go.kr/dataList/OA-21226/F/1/datasetView.do): 2023-01-01~2026-10-21, 월 ZIP 45개·일 ZIP 21개. 5.89GB 원본, **{summary['raw_rows']:,}행**. [출처·수집 방법](README.md#원본-확보).
 - 27열: 기준 날짜, 출발 ID, 도착 ID, 00~23시 승객 수. 버스·지하철 합산, 개별 수단 분리 불가. 단위는 관측 이동량(건), 고유 사람 수 아님.
 - [공식 행정동 마스터 OA-21234](https://data.seoul.go.kr/dataList/OA-21234/S/1/datasetView.do) 2,270행과 2023-01~2026-08 월별 행정동 코드표. 코드 체계가 달라 서울 구·동 이름으로 교차 확인했다.
 - 417개 동의 월별 이름·코드가 유지되지만, 고덕1동은 서로 다른 ID가 같은 OD 키에 함께 나타나 값을 합칠 근거가 불명확하다. **고덕1동 및 관측일 일부에서 기록이 없는 18개 동을 전 기간 제외한 398개 동 사이 이동**이 주 분석이다. 지역 이름의 유지와 실제 날짜별 관측 여부는 별도로 검사했다. 서울 밖 출발과 동 내부 이동을 포함한 보조 결과도 따로 제시한다.
 - 현재 마스터와 동일 이름·코드가 실제 과거 경계·역 위치 불변을 보장하지 않는다. **2026년 9~10월은 코드 참조 기간 밖의 탐색값**, 정식 전년 비교는 **1~8월**이다.
-- 공휴일은 보관한 [한국천문연구원 달력](https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2026)과 후속 공식 공지를 반영했다. [일자·근거](outputs/od_validation/calendar_sources.json). 2023~2025년 5월 1일은 별도 특별일로 제외했다.
+- 공휴일은 보관한 [한국천문연구원 달력](https://astro.kasi.re.kr/kor/life/post/calendarData?search_year=2026)과 후속 공식 공지를 반영했다. [일자·근거](data/evidence/calendar_sources.json). 2023~2025년 5월 1일은 별도 특별일로 제외했다.
 
 ## 3. 정제·결측·이상치 기준
 
 | 항목 | 실제 검사와 처리 |
 |---|---|
-| 누락 날짜 | 총 {summary['missing_days']}일: 2025년 19일, 2026년 5일. [날짜 목록](data/processed/transit_od/missing_dates.csv). 0으로 채우거나 보간하지 않음 |
+| 누락 날짜 | 총 {summary['missing_days']}일: 2025년 19일, 2026년 5일. [날짜 목록](data/tables/missing_dates.csv). 0으로 채우거나 보간하지 않음 |
 | 원본 보존 | 66개 SHA-256 대조, ZIP 전체 읽기 CRC 확인, 모든 행 숫자·날짜 검사. 원본 수정·전체 압축 해제 사본 없음 |
 | 빈 시간 셀 | 미상 유지. 알려진 숫자만 합산하며 전부 빈 지역·시간은 null. 비교 시간 구간은 모든 시간 집계가 존재할 때 사용 |
 | 숫자 오류 | 비어 있지 않은 모든 시간 셀 정수 파싱 성공, 음수 행 {summary['negative_rows']:,}개 |
@@ -154,7 +153,7 @@ def main():
 | 공식 별칭 연결 후 중복 | 같은 값 {summary['identical_alias_duplicates_removed']:,}개 제거; 다른 값 {summary['conflicting_alias_rows_excluded']:,}개 제외. 충돌 지역은 주 패널에서 전 기간 제외 |
 | 코드 미연결 | 이름을 추측하거나 ID 자릿수를 바꾸지 않음. 주 분석 제외, 감사 기록 유지 |
 | 이상일 | 같은 연도·월·요일 중앙값 대비 이동량 <0.35배/>2.5배 또는 행 수 <0.5배인 일반일 {len(summary['review_dates'])}개 점검 표시. 주 결과에는 유지, 제외 결과 별도 재계산 |
-| 검산 | 모든 관측일·24시간에서 주 분석 유입 합계=유출 합계. 독립 표본 검산과 테스트는 [완료 체크리스트](docs/COMPLETION_CHECKLIST.md) 참조 |
+| 검산 | 모든 관측일·24시간에서 주 분석 유입 합계=유출 합계. 독립 표본 검산과 테스트는 [검산 결과](data/evidence/final_verification.json) 참조 |
 
 {table_md(quality_view)}
 
@@ -173,27 +172,27 @@ def main():
 
 ### ① 관측 추세와 누락
 
-![일별 이동량과 28일 이동평균](outputs/od_figures/01_daily_trend.png)
+![일별 이동량과 28일 이동평균](figures/01_daily_trend.png)
 
 일별선과 이동평균의 차이는 단기 변동이다. 빨간 표시가 있는 날은 관측 공백이며 수요 0이 아니다. 2026년 회색 구간은 지역 코드 참조 기간 밖이다.
 
 ### ② 월별·연도별 패턴
 
-![월별 요일 표준화 평균](outputs/od_figures/02_monthly_pattern.png)
+![월별 요일 표준화 평균](figures/02_monthly_pattern.png)
 
 요일 구성과 공휴일 차이를 일부 줄인 결과다. 날씨·행사·방학·자료 집계 방식 변화까지 통제하지는 않았다. 부분 월인 2026년 10월은 이 비교에서 제외했다.
 
 ### ③ 관심 지역의 시간 구간별 변화
 
-![지역별 이동 변화율](outputs/od_figures/03_region_changes.png)
+![지역별 이동 변화율](figures/03_region_changes.png)
 
 {table_md(visible)}
 
 ### ④ 요일·시간대 패턴
 
-![요일 시간대 프로파일](outputs/od_figures/04_hourly_profiles.png)
+![요일 시간대 프로파일](figures/04_hourly_profiles.png)
 
-프로파일은 해당 지역·시간에 숫자가 있는 날의 평균이다. 시간별 분모가 다를 수 있으며 [관측일 수](data/processed/transit_od/focus_2025_hour_profile_counts.csv)를 함께 제공한다.
+프로파일은 해당 지역·시간에 숫자가 있는 날의 평균이다. 시간별 분모가 다를 수 있으며 [관측일 수](data/tables/focus_2025_hour_profile_counts.csv)를 함께 제공한다.
 
 ## 6. 근거가 있는 인사이트
 
@@ -211,14 +210,14 @@ def main():
 
 ## 7. 민감도와 해석 한계
 
-- 관심 4개 동 평일 아침·주말 변화율에서 점검 대상일을 제외했을 때 기준 결과와 최대 차이는 **{max_shift:.2f}%p**였다. [전체 재계산표](data/processed/transit_od/comparisons_excluding_review_days.csv). 이 값은 불확실성 신뢰구간이 아니다.
-- 주말 12~20시로 줄인 결과는 [비교표의 weekend_core](data/processed/transit_od/comparisons.csv)에 있다. 관심 4곳의 모든 비교에서 10~22시 결과와의 최대 차이는 **{window_shift:.2f}%p**다. 특정 시간 선택에 민감한 지역은 강한 결론을 내리지 않는다.
+- 관심 4개 동 평일 아침·주말 변화율에서 점검 대상일을 제외했을 때 기준 결과와 최대 차이는 **{max_shift:.2f}%p**였다. [전체 재계산표](data/tables/comparisons_excluding_review_days.csv). 이 값은 불확실성 신뢰구간이 아니다.
+- 주말 12~20시로 줄인 결과는 [비교표의 weekend_core](data/tables/comparisons.csv)에 있다. 관심 4곳의 모든 비교에서 10~22시 결과와의 최대 차이는 **{window_shift:.2f}%p**다. 특정 시간 선택에 민감한 지역은 강한 결론을 내리지 않는다.
 - 출발지 범위를 바꾼 2023→2025 주말 변화율은 다음과 같다. 오른쪽은 주 분석, 왼쪽은 서울 밖 출발과 동 내부 이동까지 포함한 다른 범위다. 서로 더하지 않는다.
 
 {table_md(sensitivity_view)}
 
 - 행정동별 총 이동량은 관광객·고유 방문자·체류시간·재방문·매출이 아니다. 주말에도 출근·귀가·생활 이동이 섞인다.
-- 관측 공백으로 제외한 지역에는 새로 개발되거나 교통망이 변한 지역이 포함될 수 있다. 고정 패널은 비교 안정성을 높이지만 새 지역의 성장을 놓칠 수 있다. [제외 지역](outputs/od_validation/presence_panel_exclusions.json).
+- 관측 공백으로 제외한 지역에는 새로 개발되거나 교통망이 변한 지역이 포함될 수 있다. 고정 패널은 비교 안정성을 높이지만 새 지역의 성장을 놓칠 수 있다. [제외 지역](data/evidence/presence_panel_exclusions.json).
 - 주 분석은 서울의 비교 가능 지역 사이 이동에 한정된다. 수도권/전국에서 들어오는 관광 수요 전체로 일반화하지 않는다.
 - 2025년 19일·2026년 5일의 누락은 무작위라는 보장이 없다. 월·요일 가중치를 맞춰도 그 날의 행사를 복원하지 못한다.
 - 비교 가능한 이름·코드가 경계·역 위치·공식 집계 기준의 완전한 불변을 뜻하지 않는다. 지도상의 정밀 범위·교통 접근성의 인과 효과는 주장하지 않는다.
@@ -230,15 +229,11 @@ def main():
 
 ## 9. 재현과 AI 활용 검증
 
-[실행 방법](README.md), [분석 계획](docs/ANALYSIS_PLAN.md), [데이터 사전](docs/DATA_DICTIONARY.md), [요구사항 체크리스트](docs/COMPLETION_CHECKLIST.md).
+[실행 방법·출처](README.md), [실제 검산 결과](data/evidence/final_verification.json).
 
 AI는 정제·집계·시각화 코드와 해석 초안 작성에 사용했다. 실제 원본 전수 파싱, 지역 코드 감사, 유입/유출 보존 검사, 독립 CSV 표본 계산 및 경계 사례 테스트로 결과를 대조했다. “왜 늘었나”는 인과 검증을 수행하지 않았으므로 가설로만 작성했다. 최종 제출자는 위 수치·처리 기준과 한계를 설명할 수 있어야 한다.
 '''
     (ROOT/'REPORT.md').write_text(text)
-    captions=['일별 추세와 누락','월별 비교','관심 지역 변화','요일·시간 패턴']
-    figures=''.join(f'<section><h2>{cap}</h2><img alt="{cap}" src="data:image/png;base64,{base64.b64encode((FIG/name).read_bytes()).decode()}"></section>' for cap,name in zip(captions,['01_daily_trend.png','02_monthly_pattern.png','03_region_changes.png','04_hourly_profiles.png']))
-    page=f'''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>서울 이동 변화 분석</title><style>body{{font-family:system-ui,sans-serif;background:#f2f5fa;color:#162d44;max-width:1280px;margin:auto;padding:32px}}header,section{{background:white;padding:24px;margin:20px 0;border-radius:16px}}h1{{font-size:32px}}p{{line-height:1.8}}img{{width:100%;height:auto}}table{{border-collapse:collapse;width:100%;font-size:14px}}td,th{{padding:9px;border-bottom:1px solid #dde3ed;text-align:left}}.note{{color:#635033;background:#fff7e7;padding:16px}}.scroll{{overflow:auto}}</style><header><p>B3-1 · 원본 검증 기반 시계열 분석</p><h1>서울의 어느 지역으로 향하는 이동이 변했나?</h1><p>{html.escape(intro.replace('**',''))}</p><p class="note">관광객 수가 아닌 관측 이동량입니다. 서울 398개 동 간 이동을 주 분석으로 삼고, 2026년 전년 비교는 1~8월로 제한했습니다. 원본은 변경하지 않았습니다.</p></header>{figures}<section><h2>재현 가능한 비교 수치</h2><div class="scroll">{visible.to_html(index=False)}</div><p>상세 근거·정제 기준·한계는 B3-1/REPORT.md에 있습니다.</p></section></html>'''
-    (ROOT/'outputs/od_preview.html').write_text(page)
     print(intro,flush=True)
 
 if __name__=='__main__':main()

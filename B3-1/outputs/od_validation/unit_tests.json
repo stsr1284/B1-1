@@ -1,9 +1,0 @@
-{
-  "date": "2026-10-28",
-  "command": ".venv/bin/python -m unittest discover -s tests/od -v",
-  "cwd": "B3-1",
-  "passed": true,
-  "tests_run": 6,
-  "failures": 0,
-  "errors": 0
-}

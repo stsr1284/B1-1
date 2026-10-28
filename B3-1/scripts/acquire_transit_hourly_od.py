@@ -3,6 +3,7 @@
 Checks every record's date; preserves blanks and does not aggregate passenger
 values. Numeric-cell and duplicate OD-key audits belong to the analysis stage.
 """
+import os
 import calendar
 import csv
 import fcntl
@@ -19,7 +20,8 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 import pandas as pd
 
-ROOT=Path(__file__).resolve().parents[1]
+PROJECT=Path(__file__).resolve().parents[1]
+ROOT=Path(os.environ.get('B3_OD_WORKDIR', PROJECT.parent/'tmp/B3-1-work')).expanduser().resolve()
 META=ROOT/'data/metadata/transit_hourly_od'
 RAW=ROOT/'data/raw/transit_hourly_od'
 URL='https://datafile.seoul.go.kr/bigfile/iot/inf/nio_download.do?&useCache=false'
@@ -91,7 +93,7 @@ def main():
     META.mkdir(parents=True,exist_ok=True)
     lock=(META/'acquire.lock').open('w')
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    specs=json.loads((META/'inventory.json').read_text());results={};errors=[]
+    specs=json.loads((PROJECT/'data/sources/inventory.json').read_text());results={};errors=[]
     # Inspect one month per year early, then the remaining files.
     specs.sort(key=lambda x:(x['stamp'] not in ['202301','202401','202501','202601'],x['stamp']))
     status=META/'acquisition.json'

@@ -5,7 +5,7 @@ import json
 import time
 import zipfile
 import polars as pl
-from .common import ROOT, OUT, AUDIT, META, HOURS, COLS, VERSION, sha, write_json
+from .common import WORK, CACHE, ROOT, OUT, AUDIT, META, HOURS, COLS, VERSION, sha, write_json
 from .references import prepare_regions
 
 
@@ -65,14 +65,14 @@ def process_day(content, expected, mapping):
 
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument('--stamp'); args = parser.parse_args()
-    AUDIT.mkdir(parents=True, exist_ok=True); (OUT / 'months').mkdir(parents=True, exist_ok=True)
+    AUDIT.mkdir(parents=True, exist_ok=True); (CACHE).mkdir(parents=True, exist_ok=True)
     lock = (AUDIT / 'prepare.lock').open('w'); fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     master = prepare_regions(); mapping = pl.DataFrame(master[['raw_id', 'region', 'stable_seoul_name']].to_dict(orient='list')); mapping_hash = sha(OUT / 'region_crosswalk.csv')
     records = json.loads((META / 'acquisition.json').read_text())['files']
     for index, spec in enumerate(records, 1):
         if args.stamp and spec['stamp'] != args.stamp: continue
-        stamp = spec['stamp']; path = ROOT / spec['path']; record = json.loads((ROOT / spec['record']).read_text())
-        audit_path = AUDIT / f'{stamp}.json'; product = OUT / 'months' / f'{stamp}.parquet'; start = time.monotonic()
+        stamp = spec['stamp']; path = WORK / spec['path']; record = json.loads((WORK / spec['record']).read_text())
+        audit_path = AUDIT / f'{stamp}.json'; product = CACHE / f'{stamp}.parquet'; start = time.monotonic()
         if sha(path) != spec['sha256']: raise ValueError(f'Raw hash changed: {stamp}')
         if audit_path.exists() and product.exists():
             old = json.loads(audit_path.read_text())

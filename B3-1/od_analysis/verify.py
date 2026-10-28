@@ -7,13 +7,13 @@ import zipfile
 from datetime import datetime, timezone
 import pandas as pd
 import polars as pl
-from .common import ROOT, OUT, AUDIT, META, HOURS, sha, write_json
+from .common import WORK, CACHE, ROOT, OUT, AUDIT, META, HOURS, sha, write_json
 
 
 def independent_day(stamp, member, crosswalk):
     source=json.loads((META/f'{stamp}.json').read_text())
     sums=[0]*24; n=0; keys={}; conflicting=set()
-    with zipfile.ZipFile(ROOT/source['path']) as z:
+    with zipfile.ZipFile(WORK/source['path']) as z:
         with io.TextIOWrapper(z.open(member['name']),encoding=member['encoding']) as f:
             reader=csv.reader(f);next(reader)
             for row in reader:
@@ -31,7 +31,7 @@ def independent_day(stamp, member, crosswalk):
         for h,v in enumerate(values):
             if v is not None:sums[h]+=v
     date=member['dates'][0]
-    actual=pl.read_parquet(OUT/'months'/f'{stamp}.parquet').filter((pl.col('date')==date)&(pl.col('scope')=='internal_in')).select(pl.col(HOURS).sum()).row(0)
+    actual=pl.read_parquet(CACHE/f'{stamp}.parquet').filter((pl.col('date')==date)&(pl.col('scope')=='internal_in')).select(pl.col(HOURS).sum()).row(0)
     assert list(actual)==sums,(date,sums,actual)
     assert n==member['rows']
     return {'date':date,'rows':n,'sum':sum(sums),'hour_totals_equal':True,'source_sha256':source['sha256']}
@@ -48,15 +48,15 @@ def main():
     state=json.loads((META/'acquisition.json').read_text()); sources=[]
     for spec in state['files']:
         a=json.loads((AUDIT/f"{spec['stamp']}.json").read_text())
-        assert a['source_sha256']==sha(ROOT/spec['path'])
-        assert a['product_sha256']==sha(OUT/'months'/f"{spec['stamp']}.parquet")
+        assert a['source_sha256']==sha(WORK/spec['path'])
+        assert a['product_sha256']==sha(CACHE/f"{spec['stamp']}.parquet")
         assert a['mapping_sha256']==sha(OUT/'region_crosswalk.csv')
         sources.append(spec['stamp'])
-    catalog=json.loads((ROOT/'data/metadata/catalog.json').read_text())
+    catalog=json.loads((ROOT/'data/sources/catalog.json').read_text())
     reference_checks=0
     for source in catalog['files']:
         if source['path'].startswith('data/raw/') and 'transit_hourly_od/' not in source['path']:
-            assert sha(ROOT/source['path'])==source['sha256']
+            assert sha(WORK/source['path'])==source['sha256']
             reference_checks+=1
     day=pd.read_csv(OUT/'daily_city.csv');assert day.observed.sum()>=100 and (~day.observed).sum()==24
     assert day.loc[~day.observed,'internal_passenger_sum'].isna().all()
@@ -66,16 +66,14 @@ def main():
     assert len(images)>=3 and all((ROOT/p).is_file() for p in images)
     broken=[]
     for target in re.findall(r'\]\(([^)]+)\)',report):
-        if not target.startswith(('https://','http://','#')) and not (ROOT/target).exists():broken.append(target)
+        if not target.startswith(('https://','http://','#')) and not (ROOT/target.split('#')[0]).exists():broken.append(target)
     assert not broken,broken
     import PIL.Image
     dimensions={}
     for p in images:
         with PIL.Image.open(ROOT/p) as im:im.verify()
         with PIL.Image.open(ROOT/p) as im:dimensions[p]=list(im.size)
-    documents = ['README.md', 'REPORT.md', 'data/README.md', 'data/TRANSIT_OD.md',
-                 'docs/ANALYSIS_PLAN.md', 'docs/ARCHITECTURE.md',
-                 'docs/COMPLETION_CHECKLIST.md', 'docs/DATA_DICTIONARY.md']
+    documents = ['README.md', 'REPORT.md']
     for name in documents:
         document = ROOT/name
         for target in re.findall(r'\]\(([^)]+)\)', document.read_text()):

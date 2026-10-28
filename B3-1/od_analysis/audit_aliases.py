@@ -6,7 +6,7 @@ exclude the affected region from the primary fixed panel for ALL periods.
 import json
 import zipfile
 import polars as pl
-from .common import ROOT, OUT, AUDIT, META, COLS, write_json
+from .common import WORK, CACHE, ROOT, OUT, AUDIT, META, COLS, write_json
 
 def main():
     mapping=pl.read_csv(OUT/'region_crosswalk.csv',schema_overrides={'raw_id':pl.String}).select('raw_id','region')
@@ -15,7 +15,7 @@ def main():
         a=json.loads(path.read_text()); candidates=[d for d in a['days'] if d.get('conflicting_alias_rows_excluded',0)+d.get('identical_alias_duplicates_removed',0)>0]
         if not candidates:continue
         source=json.loads((META/f"{a['stamp']}.json").read_text())
-        with zipfile.ZipFile(ROOT/source['path']) as z:
+        with zipfile.ZipFile(WORK/source['path']) as z:
             for d in candidates:
                 body=z.read(d['member']).split(b'\n',1)[1]
                 f=pl.read_csv(body,has_header=False,columns=[0,1,2],schema={c:pl.String for c in COLS},null_values='')

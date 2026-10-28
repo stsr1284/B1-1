@@ -616,6 +616,6 @@
     }
   },
   "total_raw_bytes": 5894118166,
-  "validation_record": "outputs/od_validation/final_verification.json",
-  "cleanup_record": "data/metadata/cleanup_20261027.json"
+  "validation_record": "data/evidence/final_verification.json",
+  "path_base": "B3_OD_WORKDIR (default: ../tmp/B3-1-work relative to B3-1)"
 }

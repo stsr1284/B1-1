@@ -3,7 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 import polars as pl
-from .common import ROOT, OUT, AUDIT, META, HOURS, write_json, sha
+from .common import WORK, CACHE, ROOT, OUT, AUDIT, META, HOURS, write_json, sha
 from .calendar import prepare_calendar
 
 FOCUS = ['서울|중구|명동', '서울|마포구|서교동', '서울|성동구|성수2가3동', '서울|용산구|한남동']
@@ -62,7 +62,7 @@ def main():
     day.to_csv(OUT/'daily_city.csv',index=False)
     day[~day.observed].to_csv(OUT/'missing_dates.csv',index=False)
     day[day.review_flag].to_csv(OUT/'review_days.csv',index=False)
-    paths=[OUT/'months'/f"{s['stamp']}.parquet" for s in state['files']]
+    paths=[CACHE/f"{s['stamp']}.parquet" for s in state['files']]
     data=pl.scan_parquet(paths)
     # Windows require every regional hour aggregate, rather than fill missing hours.
     expr=[pl.sum_horizontal([pl.col(f'h{h:02}') for h in hours],ignore_nulls=False).truediv(len(hours)).alias(name) for name,(hours,_) in WINDOWS.items()]

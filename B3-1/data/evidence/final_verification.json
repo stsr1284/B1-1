@@ -35,41 +35,35 @@
   "derived_hashes_verified": 66,
   "missing_dates_preserved_as_null": 24,
   "report_images": {
-    "outputs/od_figures/01_daily_trend.png": [
+    "figures/01_daily_trend.png": [
       1714,
       746
     ],
-    "outputs/od_figures/02_monthly_pattern.png": [
+    "figures/02_monthly_pattern.png": [
       1490,
       799
     ],
-    "outputs/od_figures/03_region_changes.png": [
+    "figures/03_region_changes.png": [
       1866,
       842
     ],
-    "outputs/od_figures/04_hourly_profiles.png": [
+    "figures/04_hourly_profiles.png": [
       2093,
       1138
     ]
   },
   "broken_report_links": [],
-  "verified_at_utc": "2026-10-27T20:20:58.250101+00:00",
-  "report_sha256": "1ddfabf464378d4dc7ba2215013d1ce7bfd92eecb7d7e4588c587b8be815f2ec",
+  "verified_at_utc": "2026-10-28T00:54:41.434056+00:00",
+  "report_sha256": "ea0fbc52adcdf0ee846a5d3638fe519d258274c966f1f589019ba9df7457824f",
   "figure_sha256": {
-    "outputs/od_figures/01_daily_trend.png": "84fd809c1b29cd0a42bf20dc0366d7cc9d1c68813342dcd9cfb8ea33da040caa",
-    "outputs/od_figures/02_monthly_pattern.png": "1d7d825e4718a52a0c7d02ad077df97660af87e51c14366814f4a0f4f7d14cd0",
-    "outputs/od_figures/03_region_changes.png": "38dfb65d648a807a0fe3bcfcfbc7ae66d00615cef3a73d2de17b77f549251c78",
-    "outputs/od_figures/04_hourly_profiles.png": "9cb56b6950fee59cfd8bb54bbd403c260ddd120934510bf79281f356af13e79b"
+    "figures/01_daily_trend.png": "84fd809c1b29cd0a42bf20dc0366d7cc9d1c68813342dcd9cfb8ea33da040caa",
+    "figures/02_monthly_pattern.png": "1d7d825e4718a52a0c7d02ad077df97660af87e51c14366814f4a0f4f7d14cd0",
+    "figures/03_region_changes.png": "38dfb65d648a807a0fe3bcfcfbc7ae66d00615cef3a73d2de17b77f549251c78",
+    "figures/04_hourly_profiles.png": "9cb56b6950fee59cfd8bb54bbd403c260ddd120934510bf79281f356af13e79b"
   },
   "current_document_links_checked": [
     "README.md",
-    "REPORT.md",
-    "data/README.md",
-    "data/TRANSIT_OD.md",
-    "docs/ANALYSIS_PLAN.md",
-    "docs/ARCHITECTURE.md",
-    "docs/COMPLETION_CHECKLIST.md",
-    "docs/DATA_DICTIONARY.md"
+    "REPORT.md"
   ],
   "scope": "Verifies implementation and artifact consistency, not official collection completeness or causal conclusions."
 }
